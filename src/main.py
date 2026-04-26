@@ -1,4 +1,3 @@
-#!/home/hans/.local/share/mise/installs/python/latest/bin/python
 
 from textnode import *
 
