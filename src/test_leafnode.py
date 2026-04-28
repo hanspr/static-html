@@ -1,6 +1,6 @@
 import unittest
 
-from leafnode import LeafNode
+from htmlnode import LeafNode
 
 class TestLeafNode(unittest.TestCase):
     # Test html format strings
@@ -22,8 +22,8 @@ class TestLeafNode(unittest.TestCase):
             node = LeafNode(tag = "a", props = {"href":"https://google.com", "target":"_blank"})
 
     # Validate raises an error on children parameter
-    def test_validate_children(self):
-        with self.assertRaises(TypeError):
+    def test_validate_leaf_children(self):
+        with self.assertRaises(ValueError):
             node = LeafNode(tag = "a", children = None, props = {"href":"https://google.com", "target":"_blank"})
         
 if __name__ == "__main__":
