@@ -22,13 +22,13 @@ class TestTextNode(unittest.TestCase):
     
     def test_split_images(self):
         node = tn.TextNode(
-            "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and another ![second image](https://i.imgur.com/3elNhQu.png)",
+            "This is _text_ with an ![image](https://i.imgur.com/zjjcJKZ.png) and another ![second image](https://i.imgur.com/3elNhQu.png)",
             tn.TextType.TEXT,
         )
         new_nodes = functions.split_nodes_image([node])
         self.assertListEqual(
             [
-                tn.TextNode("This is text with an ", tn.TextType.TEXT),
+                tn.TextNode("This is _text_ with an ", tn.TextType.TEXT),
                 tn.TextNode("image", tn.TextType.IMAGE, "https://i.imgur.com/zjjcJKZ.png"),
                 tn.TextNode(" and another ", tn.TextType.TEXT),
                 tn.TextNode("second image", tn.TextType.IMAGE, "https://i.imgur.com/3elNhQu.png"),
@@ -38,16 +38,37 @@ class TestTextNode(unittest.TestCase):
 
     def test_split_links(self):
         node = tn.TextNode(
-            "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)",
+            "This is **text** with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)",
             tn.TextType.TEXT,
         )
         new_nodes = functions.split_nodes_link([node])
+        self.assertListEqual(
+            [
+                tn.TextNode("This is **text** with a link ", tn.TextType.TEXT),
+                tn.TextNode("to boot dev", tn.TextType.LINK, "https://www.boot.dev"),
+                tn.TextNode(" and ", tn.TextType.TEXT),
+                tn.TextNode("to youtube", tn.TextType.LINK, "https://www.youtube.com/@bootdotdev"),
+            ],
+            new_nodes,
+        )        
+
+    def test_split_mixed(self):
+        nodel = tn.TextNode(
+            "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)",
+            tn.TextType.TEXT,
+        )
+        nodec = tn.TextNode(
+            "code to ignore and return",
+            tn.TextType.CODE,
+        )
+        new_nodes = functions.split_nodes_link([nodel, nodec])
         self.assertListEqual(
             [
                 tn.TextNode("This is text with a link ", tn.TextType.TEXT),
                 tn.TextNode("to boot dev", tn.TextType.LINK, "https://www.boot.dev"),
                 tn.TextNode(" and ", tn.TextType.TEXT),
                 tn.TextNode("to youtube", tn.TextType.LINK, "https://www.youtube.com/@bootdotdev"),
+                tn.TextNode("code to ignore and return", tn.TextType.CODE),
             ],
             new_nodes,
         )        
