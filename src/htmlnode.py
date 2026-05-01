@@ -61,13 +61,3 @@ class ParentNode(HTMLNode):
     def __repr__(self):
         print(f"tag:{self.tag}, value:{self.value}, props:{self.props}")
     
-def text_node_to_html_node(text_node):
-    prop = None
-    if text_node.text_type == textnode.TextType.TEXT:
-        return LeafNode(None, text_node.text, None, prop)
-    if text_node.text_type == textnode.TextType.LINK:
-        prop = {"href":text_node.url}
-    if text_node.text_type == textnode.TextType.IMAGE:
-        prop = {"src":text_node.url, "alt":text_node.text}
-        text_node.text = ""
-    return LeafNode(text_node.text_type.value, text_node.text, None, prop)
