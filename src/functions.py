@@ -1,13 +1,21 @@
 import re
 import textnode as tn
 import htmlnode as hn
-#from pprint import pprint
+from pprint import pprint
 
-def extract_markdown_images(text):
-    return re.findall(r"!\[(.+?)\]\((.+?)\)", text)
+# block: section
 
-def extract_markdown_links(text):
-    return re.findall(r"[^!]\[(.+?)\]\((.+?)\)", text)
+def markdown_to_blocks(markdown):
+    blocks = []
+    parts = markdown.split("\n\n")
+    for part in parts:
+        part = part.strip()
+        if part == "":
+            continue
+        blocks.append(part)
+    return blocks
+
+# htmlnode: section
 
 def text_node_to_html_node(text_node):
     prop = None
@@ -19,6 +27,14 @@ def text_node_to_html_node(text_node):
         prop = {"src":text_node.url, "alt":text_node.text}
         text_node.text = ""
     return hn.LeafNode(text_node.text_type.value, text_node.text, None, prop)
+
+# textnode: setcion
+
+def extract_markdown_images(text):
+    return re.findall(r"!\[(.+?)\]\((.+?)\)", text)
+
+def extract_markdown_links(text):
+    return re.findall(r"[^!]\[(.+?)\]\((.+?)\)", text)
 
 def split_nodes_image(old_nodes):
     new_nodes = []
@@ -84,15 +100,3 @@ def split_nodes_delimeter(old_nodes, delimeter = None):
                         type = tn.TextType.CODE
                     new_nodes.append(tn.TextNode(parts[i], type))
     return new_nodes
-
-def text_to_textnodes(text):
-    text_node = tn.TextNode(text, tn.TextType.TEXT)
-    nodes = split_nodes_image([text_node])
-    nodes = split_nodes_link(nodes)
-    for delimeter in ("_", "**", "`"):
-        nodes = split_nodes_delimeter(nodes, delimeter)
-    return nodes
-
-#text = "This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
-#pprint(text_to_textnodes(text), indent = 4)
-#print(text_to_textnodes(text))

@@ -1,5 +1,4 @@
 import unittest
-import functions
 import textnode as tn
 import functions as fn
 
