@@ -7,13 +7,26 @@ from pprint import pprint
 
 def markdown_to_blocks(markdown):
     blocks = []
-    parts = markdown.split("\n\n")
+    parts = re.split("\n\n+", markdown)
     for part in parts:
         part = part.strip()
         if part == "":
             continue
         blocks.append(part)
     return blocks
+
+def block_to_block_type(block):
+    if re.search(r"^#{1,6} \S", block):
+        return tn.BlockType.HEADER
+    if re.search(r"```", block):
+        return tn.BlockType.CODE
+    if re.search(r"^> ?", block, flags = re.M):
+        return tn.BlockType.QUOTE
+    if re.search(r"^- ", block, flags = re.M):
+        return tn.BlockType.ULIST
+    if re.search(r"^\d+. ", block, flags = re.M):
+        return tn.BlockType.OLIST
+    return tn.BlockType.PARAGRAPH
 
 # htmlnode: section
 
@@ -100,3 +113,5 @@ def split_nodes_delimeter(old_nodes, delimeter = None):
                         type = tn.TextType.CODE
                     new_nodes.append(tn.TextNode(parts[i], type))
     return new_nodes
+
+
