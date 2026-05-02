@@ -24,7 +24,7 @@ def block_to_block_type(block):
         return tn.BlockType.QUOTE
     if re.search(r"^- ", block, flags = re.M):
         return tn.BlockType.ULIST
-    if re.search(r"^\d+. ", block, flags = re.M):
+    if re.search(r"^\d+\. ", block, flags = re.M):
         return tn.BlockType.OLIST
     return tn.BlockType.PARAGRAPH
 
