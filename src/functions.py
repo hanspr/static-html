@@ -120,23 +120,13 @@ def block_to_block_type(block):
         return tn.BlockType.OLIST
     return tn.BlockType.PARAGRAPH
 
-def process_uolist(text, rgx):
+def process_list(text, rgx, tag = "li"):
     children = []
     lines = text.split("\n")
     for line in lines:
         line = re.sub(rgx, "", line)
         child_nodes = text_to_nodes(line)
-        bnode = hn.ParentNode(tag = "li", children = child_nodes)
-        children.append(bnode)
-    return children
-
-def process_lines(text, rgx):
-    children = []
-    lines = text.split("\n")
-    for line in lines:
-        line = re.sub(rgx, "", line)
-        child_nodes = text_to_nodes(line)
-        bnode = hn.ParentNode(tag = "div", children = child_nodes)
+        bnode = hn.ParentNode(tag = tag, children = child_nodes)
         children.append(bnode)
     return children
 
@@ -160,11 +150,11 @@ def text_to_children(btype, text):
     elif btype == tn.BlockType.PARAGRAPH:
         children = text_to_nodes(text)
     elif btype == tn.BlockType.ULIST:
-        children = process_uolist(text, r"^- ")
+        children = process_list(text, r"^- ")
     elif btype == tn.BlockType.OLIST:
-        children = process_uolist(text, r"^\d+\. ")
+        children = process_list(text, r"^\d+\. ")
     elif btype == tn.BlockType.QUOTE:
-        text = process_lines(text, r"^> ?")
+        children = process_list(text, r"^> ?", "p")
     elif btype == tn.BlockType.CODE:
         value = ""
         lines = text.split("\n")
@@ -182,12 +172,9 @@ def markdown_to_html_node(markdown):
     for block in blocks:
         btype = block_to_block_type(block)
         bnode = hn.ParentNode(tag = btype.value, children=[])
-        match btype.value:
-            case "h":
-                level = block.count("#")
-                bnode.tag = f"h{level}"
-            case "quote":
-                bnode.tag = 'div'
+        if btype == tn.BlockType.HEADER:
+            level = block.count("#")
+            bnode.tag = f"h{level}"
         bnode.children = text_to_children(btype, block)
         children.append(bnode)
     parent = hn.ParentNode(tag = "div", children = children)
@@ -213,14 +200,46 @@ def print_html_node(node):
             print("  " * indent, child)
 
 # get formated tree
-def fprint_html_node(node):
-    str = f"{node!r}"
+def fprint_html_node(node, nl = "\n"):
+    str = f"{node!r}{nl}"
     for child in node.children:
         if child.children != None:
-            str += fprint_html_node(child)
+            str += fprint_html_node(child, nl)
         else:
-            str += f"{node!r}"
+            str += f"{child!r}{nl}"
+    str = str.replace("\n", "\\n")
     return str
 
 # test: section
 
+#md = """
+## Header 1
+
+### Header 2
+
+#### Header 3
+
+#This is paragraph. This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)
+
+#```
+#section of code
+#with several lines
+#of text
+#```
+
+#> Quoted text
+#> Second line of quoted text
+
+#- This is an unorderd list
+#- item 1
+#- item 2
+
+#1. This is an orderd list
+#1. with some item 1
+#1. with some item 2
+
+#"""
+#nodes = markdown_to_html_node(md)
+#print(print_html_node(nodes))
+#result = fprint_html_node(nodes, '')
+#print(result)

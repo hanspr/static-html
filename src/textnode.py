@@ -11,8 +11,8 @@ class TextType(Enum):
 class BlockType(Enum):
     PARAGRAPH = "p"
     HEADER = "h"
-    CODE = "pre"
-    QUOTE = "quote"
+    CODE = "code"
+    QUOTE = "blockquote"
     ULIST = "ul"
     OLIST = "ol"
 
