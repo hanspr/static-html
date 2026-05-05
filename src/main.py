@@ -2,9 +2,6 @@ import os
 import shutil
 import functions as fn
 
-#from textnode import *
-#import textnode
-
 def clean_dir(dir):
     shutil.rmtree(dir, ignore_errors = True)
     os.mkdir(dir)
