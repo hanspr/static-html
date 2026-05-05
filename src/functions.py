@@ -120,6 +120,15 @@ def block_to_block_type(block):
         return tn.BlockType.OLIST
     return tn.BlockType.PARAGRAPH
 
+def process_quote(text, rgx):
+    children = []
+    lines = text.split("\n")
+    for line in lines:
+        line = re.sub(rgx, "", line)
+        node = hn.LeafNode(tag = None, value = line + "<br/>")
+        children.append(node)
+    return children
+
 def process_list(text, rgx, tag = "li"):
     children = []
     lines = text.split("\n")
@@ -146,6 +155,7 @@ def text_to_children(btype, text):
     children = []
     if btype == tn.BlockType.HEADER:
         text = text.lstrip("#")
+        text = text.strip(" ")
         children = text_to_nodes(text)
     elif btype == tn.BlockType.PARAGRAPH:
         children = text_to_nodes(text)
@@ -154,7 +164,7 @@ def text_to_children(btype, text):
     elif btype == tn.BlockType.OLIST:
         children = process_list(text, r"^\d+\. ")
     elif btype == tn.BlockType.QUOTE:
-        children = process_list(text, r"^> ?", "p")
+        children = process_quote(text, r"^> ?")
     elif btype == tn.BlockType.CODE:
         value = ""
         lines = text.split("\n")
@@ -180,6 +190,31 @@ def markdown_to_html_node(markdown):
     parent = hn.ParentNode(tag = "div", children = children)
     return parent
 
+# generate:
+
+def extract_title(markdown):
+    lines = markdown.split("\n")
+    for line in lines:
+        if re.search(r"^# \S", line):
+            title = line.lstrip("#")
+            title = title.strip(" ")
+            return title
+    raise Exception("No title in markdown")
+
+def generate_page(from_path, template_path, dest_path):
+    print(f"Generating page from {from_path} to {dest_path} using {template_path}")
+    with open(from_path, "r") as f:
+        markdown = f.read()
+    with open(template_path, "r") as f:
+        template = f.read()
+    htmlnode = markdown_to_html_node(markdown)
+    html = htmlnode.to_html()
+    title = extract_title(markdown)
+    page = re.sub(r"{{ Title }}", title, template, count = 1)
+    page = re.sub(r"{{ Content }}", html, page, count = 1)
+    with open(dest_path, "w", encoding = "utf-8") as f:
+        f.write(page)
+    
 # section: help testing functions
 
 indent = 0
@@ -210,34 +245,56 @@ def fprint_html_node(node, nl = "\n"):
     str = str.replace("\n", "\\n")
     return str
 
+
 # test: section
 
 #md = """
-## Header 1
+## Tolkien Fan Club
 
-### Header 2
+#![JRR Tolkien sitting](/images/tolkien.png)
 
-#### Header 3
+#Here's the deal, **I like Tolkien**.
 
-#This is paragraph. This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)
+#> "I am in fact a Hobbit in all but size."
+#>
+#> -- J.R.R. Tolkien
+
+### Blog posts
+
+#- [Why Glorfindel is More Impressive than Legolas](/blog/glorfindel)
+#- [Why Tom Bombadil Was a Mistake](/blog/tom)
+#- [The Unparalleled Majesty of "The Lord of the Rings"](/blog/majesty)
+
+### Reasons I like Tolkien
+
+#- You can spend years studying the legendarium and still not understand its depths
+#- It can be enjoyed by children and adults alike
+#- Disney _didn't ruin it_ (okay, but Amazon might have)
+#- It created an entirely new genre of fantasy
+
+### My favorite characters (in order)
+
+#1. Gandalf
+#2. Bilbo
+#3. Sam
+#4. Glorfindel
+#5. Galadriel
+#6. Elrond
+#7. Thorin
+#8. Sauron
+#9. Aragorn
+
+#Here's what `elflang` looks like (the perfect coding language):
 
 #```
-#section of code
-#with several lines
-#of text
+#func main(){
+    #fmt.Println("Aiya, Ambar!")
+#}
 #```
 
-#> Quoted text
-#> Second line of quoted text
+#Want to get in touch? [Contact me here](/contact).
 
-#- This is an unorderd list
-#- item 1
-#- item 2
-
-#1. This is an orderd list
-#1. with some item 1
-#1. with some item 2
-
+#This site was generated with a custom-built [static site generator](https://www.boot.dev/courses/build-static-site-generator-python) from the course on [Boot.dev](https://www.boot.dev).
 #"""
 #nodes = markdown_to_html_node(md)
 #print(print_html_node(nodes))
