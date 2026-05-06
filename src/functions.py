@@ -223,6 +223,8 @@ def generate_page(from_path, template_path, dest_path, basepath):
     html = htmlnode.to_html()
     title = extract_title(markdown)
     page = re.sub(r"{{ Title }}", title, template, count = 1)
+    if dest_path.find("docs") > 0:
+        page = re.sub('href="/', f'href="{basepath}/', page, count = 1)
     page = re.sub(r"{{ Content }}", html, page, count = 1)
     with open(dest_path, "w", encoding = "utf-8") as f:
         f.write(page)
