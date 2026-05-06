@@ -28,13 +28,15 @@ def publish_website(dir_from = "", dir_to = "", basepath = "/"):
             publish_website(fpath, tpath, basepath)
 
 def main():
+    publish_dir = "./docs"
     if len(sys.argv) > 1:
         basepath = sys.argv[1]
     else:
         basepath = ""
-    clean_dir("./public")
-    publish_website("./static", "./public", basepath)
-    publish_website("./content", "./public", basepath)
+        publish_dir = "./public"
+    clean_dir(publish_dir)
+    publish_website("./static", publish_dir, basepath)
+    publish_website("./content", publish_dir, basepath)
 
 if __name__ == "__main__":
     main()

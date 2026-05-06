@@ -31,6 +31,7 @@ def extract_markdown_links(text):
     return re.findall(r"\[(.+?)\]\((.+?)\)", text)
 
 def split_nodes_image(old_nodes):
+    global BASEPATH
     new_nodes = []
     for node in old_nodes:
         if node.text_type != tn.TextType.TEXT:
@@ -40,7 +41,10 @@ def split_nodes_image(old_nodes):
         for part in parts:
             if re.search(r"^!", part):
                 props = extract_markdown_images(part)
-                link = tn.TextNode(props[0][0], tn.TextType.IMAGE, BASEPATH + props[0][1])
+                url = props[0][1]
+                if url[0] == "/":
+                    url = BASEPATH + url
+                link = tn.TextNode(props[0][0], tn.TextType.IMAGE, url)
                 new_nodes.append(link)
             elif part == "":
                 continue
@@ -51,6 +55,7 @@ def split_nodes_image(old_nodes):
     return new_nodes
 
 def split_nodes_link(old_nodes):
+    global BASEPATH
     new_nodes = []
     for node in old_nodes:
         if node.text_type != tn.TextType.TEXT:
@@ -60,7 +65,10 @@ def split_nodes_link(old_nodes):
         for part in parts:
             if re.search(r"\[", part):
                 props = extract_markdown_links(part)
-                link = tn.TextNode(props[0][0], tn.TextType.LINK, BASEPATH + props[0][1])
+                url = props[0][1]
+                if url[0] == "/":
+                    url = BASEPATH + url
+                link = tn.TextNode(props[0][0], tn.TextType.LINK, url)
                 new_nodes.append(link)
             elif part == "":
                 continue
@@ -204,8 +212,9 @@ def extract_title(markdown):
     raise Exception("No title in markdown")
 
 def generate_page(from_path, template_path, dest_path, basepath):
+    global BASEPATH
     print(f"Generating page from {from_path} to {dest_path} using {template_path}")
-    BASEPATH = pasepath
+    BASEPATH = basepath
     with open(from_path, "r") as f:
         markdown = f.read()
     with open(template_path, "r") as f:
