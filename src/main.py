@@ -7,7 +7,7 @@ def clean_dir(dir):
     os.mkdir(dir)
     return
 
-def copy_dir(dir_from = "", dir_to = ""):
+def publish_website(dir_from = "", dir_to = ""):
     if dir_from == "" or dir_to == "" or os.path.exists(dir_from) == False or os.path.exists(dir_to) == False or os.path.isdir(dir_from) == False or os.path.isdir(dir_to) == False:
         print(f"Nothing to do, invalid paths {dir_from} -> {dir_to}")
         return
@@ -24,11 +24,12 @@ def copy_dir(dir_from = "", dir_to = ""):
         elif os.path.isdir(fpath):
             if os.path.exists(tpath) == False:
                 os.mkdir(tpath)
-            copy_dir(fpath, tpath)
+            publish_website(fpath, tpath)
 
 def main():
     clean_dir("./public")
-    copy_dir("./static", "./public")
+    publish_website("./static", "./public")
+    publish_website("./content", "./public")
 
 if __name__ == "__main__":
     main()
