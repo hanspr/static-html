@@ -28,6 +28,7 @@ def publish_website(dir_from = "", dir_to = "", basepath = "/"):
             publish_website(fpath, tpath, basepath)
 
 def main():
+    # final commit
     publish_dir = "./docs"
     if len(sys.argv) > 1:
         basepath = sys.argv[1]
